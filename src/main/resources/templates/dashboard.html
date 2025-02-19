@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+	 <link rel="stylesheet" th:href="@{/css/nav-color.css}">
+<body>
+ <nav class="navbar navbar-expand-lg   p-3">
+        <div class="container-fluid">
+            <!-- Brand/Logo -->
+            <a class="navbar-brand" href="/dashboard">Billing Software</a>
+
+            <!-- Toggle Button for Mobile -->
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <!-- Navbar Links -->
+            <div class="collapse navbar-collapse " id="navbarNav">
+                <ul th:if="${role == 'ADMIN'}" class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link	" aria-current="page" href="/products">Manage Products</a>
+                    </li> 
+	                <li class="nav-item">
+	                     <a class="nav-link" href="/customers">Manage Employees</a>
+	                </li> 
+	                <li class="nav-item">
+	                    <a class="nav-link" href="/reports">View Reports</a>
+	                </li>
+                </ul>
+                <ul th:if="${role == 'USER'}" class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" aria-current="page" href="/billing">Create Bill</a>
+                    </li> 
+	                <li class="nav-item">
+	                     <a class="nav-link" href="/products/return-products">Product Return</a>
+	                </li> 
+	                <li class="nav-item">
+	                    <a class="nav-link" href="/reports">View Reports</a>
+	                </li>
+                </ul>
+
+                <!-- Logout Button -->
+                <div class="d-flex">
+                <a href="/auth/logout">
+                    <button class="btn btn-danger" >
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+    <!--  
+    <div class="container mt-5">
+        <h2>Welcome to the Dashboard <span th:text="${username}"> </span></h2>
+        <p>Your Role: <span th:text="${role}"></span></p>
+    <h2 class="text-center mb-4">Billing Software Dashboard</h2>
+
+    <!-- Row for Summary Cards -->
+<div class="container mt-4">
+    <div class="row">
+        <!-- Total Sales -->
+        <div class="col-md-4">
+            <div class="card text-white bg-primary shadow-lg">
+                <div class="card-body">
+                    <h5 class="card-title">Total Sales</h5>
+                    <p class="display-5">₹ <span th:text="${totalSales}">0</span></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Total Bills -->
+        <div class="col-md-4">
+            <div class="card text-white bg-success shadow-lg">
+                <div class="card-body">
+                    <h5 class="card-title">Total Bills</h5>
+                    <p class="display-5"><span th:text="${totalBills}">0</span></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Total Customers -->
+        <div class="col-md-4">
+            <div class="card text-white bg-warning shadow-lg">
+                <div class="card-body">
+                    <h5 class="card-title">Total Customers</h5>
+                    <p class="display-5"><span th:text="${totalCustomers}">0</span></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Transactions -->
+    <div class="card mt-4 shadow">
+        <div class="card-header bg-dark text-white text-center">
+            <h5>Recent Transactions</h5>
+        </div>
+        <div class="card-body">
+            <table class="table table-hover">
+                <thead class="thead-dark">
+                    <tr>
+                        <th>S.No</th>
+                        <th>Bill No</th>
+                        <th>Customer Phone</th>
+                        <th>Date</th>
+                        <th>Total Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="bill, iterStat : ${recentBills}">
+                        <td th:text="${iterStat.count}"></td>
+                        <td th:text="${bill.billNo}"></td>
+                        <td th:text="${bill.cusPhone}"></td>
+                        <td th:text="${bill.billingDate}"></td>
+                        <td>₹ <span th:text="${bill.totalAmount}"></span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+
+</body>
+</html>
