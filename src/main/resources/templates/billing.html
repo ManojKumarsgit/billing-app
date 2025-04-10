@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Reports</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+     <link rel="stylesheet" th:href="@{/css/nav-color.css}">
+    	<style type="text/css">
+    		.bill-container{
+    			box-shadow: 1px 1px 5px 1px rgba(0, 0, 0, 0.6);
+    		}
+    		input{
+    			border: 2px solid lightblue !important;
+    			box-shadow: 1px 1px 5px 1px lightblue;
+    		}
+    	</style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg p-3 ">
+        <div class="container-fluid">
+            <!-- Brand/Logo -->
+            <a class="navbar-brand" href="/dashboard">Billing Software</a>
+
+            <!-- Toggle Button for Mobile -->
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <!-- Navbar Links -->
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <div class="collapse navbar-collapse" id="navbarNav">
+                <ul  class="navbar-nav me-auto mb-2 mb-lg-0">
+                   <li class="nav-item">
+                        <a class="nav-link" aria-current="page" href="/billing">Create Bill</a>
+                    </li> 
+	                <li class="nav-item">
+	                     <a class="nav-link" href="/products/return-products">Product Return</a>
+	                </li> 
+	                <li class="nav-item">
+	                    <a class="nav-link" href="/reports">View Reports</a>
+	                </li>
+                </ul>
+
+
+                <!-- Logout Button -->
+                <div class="d-flex">
+                <a href="/auth/logout">
+                    <button class="btn btn-danger" >
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+   
+<div class="container bill-container bg-light p-5 pt-3 rounded-5">
+    <h3 class="text-center p-3">
+        Bill Products
+    </h3>
+    <div class="row mb-3 container">
+        <div class="col-md-6 ">
+            <form action="/billing/add" method="post" class="d-flex align-items-center">
+                <input type="number" class="form-control" id="productid" name="productid" required placeholder="Product Id">
+                <button type="submit" class="btn btn-primary ms-2">Add </button>
+            </form>
+        </div>
+      
+        <div class="col-md-6 d-flex align-items-center">
+     
+            <label for="phone" class="form-label me-2">Phone:</label>
+            <input type="number" class="form-control" id="phone" name="phone" required placeholder="+91">
+        </div>
+      </div>
+
+      <div class="container">
+      <table class="table table-hover table-bordered table-light">
+        <thead class="table-dark">
+          <tr>
+            <th>Product ID</th>
+            <th>Items</th>
+            <th>MRP</th>
+            <th>Quantity</th>
+            <th>Total</th>
+          </tr>
+        </thead>
+      <tbody  id="product-table">
+		    <tr th:each="product : ${products}">
+		        <td th:text="${product.id}" name="id" ></td>
+		        <td th:text="${product.name}" name="name"></td>
+		        <td th:text="${product.price}" name="mrp" class="mrp"></td>
+		        <td>
+		            <select name="quantity" class="quantity form-select">
+		                <option value="1">1</option>
+		                <option value="2">2</option>
+		                <option value="3">3</option>
+		                <option value="4">4</option>
+		                <option value="5">5</option>
+		            </select>
+		        </td>
+		        <td class="total" name="total"></td>
+		    </tr>
+		</tbody>
+
+      </table>
+    </div>
+ <div class="row mt-3">
+        <div class="col-md-4">
+            <label for="gst" class="form-label">GST (%)</label>
+            <input type="number" class="form-control" id="gst" name="gst" placeholder="0">
+        </div>
+        <div class="col-md-4">
+            <label for="discount" class="form-label">Discount (%)</label>
+            <input type="number" class="form-control" id="discount" name="discount" placeholder="0">
+        </div>
+        <div class="col-md-4">
+            <h4 class="mt-4">Grand Total: ₹<span id="grand-total">0.00</span></h4>
+        </div>
+    </div>
+
+      <div class="d-flex align-items-center justify-content-center mt-3">
+          <button class="btn btn-danger" id="downloadPdf" type="submit">Save and Download PDF</button>
+          <form  action="/billing">
+          	<button class="btn btn-primary ms-3" type="submit">Refresh</button>
+      	</form>
+      </div>
+  	
+  </div>
+  
+  <script>
+
+	
+  document.addEventListener("DOMContentLoaded", function () {
+	  
+	  
+	    function calculateTotals() {
+	        let totalAmount = 0;
+
+	        // Loop through all rows and calculate total per product
+	        document.querySelectorAll("#product-table tr").forEach((row) => {
+	            const mrp = parseFloat(row.querySelector(".mrp").textContent) || 0;
+	            const quantity = parseInt(row.querySelector(".quantity").value) || 1;
+	            const totalCell = row.querySelector(".total");
+
+	            let total = mrp * quantity;
+	            totalCell.textContent = total.toFixed(2);
+
+	            totalAmount += total;
+	        });
+
+	        // Get GST and Discount values
+	        const gst = parseFloat(document.getElementById("gst").value) || 0;
+	        const discount = parseFloat(document.getElementById("discount").value) || 0;
+
+	        // Apply GST and Discount
+	        let gstAmount = (totalAmount * gst) / 100;
+	        let discountAmount = (totalAmount * discount) / 100;
+	        let grandTotal = totalAmount + gstAmount - discountAmount;
+
+	        // Update Grand Total
+	        document.getElementById("grand-total").textContent = grandTotal.toFixed(2);
+	    }
+
+	    // Attach event listeners to quantity dropdowns, GST, and Discount inputs
+	    document.querySelectorAll(".quantity").forEach((select) => {
+	        select.addEventListener("change", calculateTotals);
+	    });
+
+	    document.getElementById("gst").addEventListener("input", calculateTotals);
+	    document.getElementById("discount").addEventListener("input", calculateTotals);
+
+	    // Initial calculation
+	    calculateTotals();
+	});
+  document.querySelector("#downloadPdf").addEventListener("click", function() {
+	  const phoneNumber = document.getElementById('phone').value.trim();
+
+	    // Validate the phone number
+	    if (!phoneNumber) {
+	        alert('Please enter a valid phone number.');
+	        return; // Stop further execution if validation fails
+	    }
+	  let phone = document.getElementById("phone").value;
+      let products = document.querySelectorAll("#product-table tr");
+      let gst = parseFloat(document.getElementById("gst").value);
+      let discount = parseFloat(document.getElementById("discount").value);
+      let billDetails = [];
+      products.forEach(row => {
+          let item = row.cells[1].textContent;
+          let mrp = parseFloat(row.cells[2].textContent);
+          let quantity = parseInt(row.querySelector(".quantity").value);
+          //now
+         
+         
+          console.log(gst+ " "+ discount)
+          
+          let total = mrp * quantity;
+          
+          billDetails.push({
+              item: item,
+              mrp: mrp,
+              quantity: quantity,
+              total: total,
+            
+          });
+      });
+      
+      let billData = {
+          cusPhone: phone,
+          billDetails: billDetails,
+          gst: gst,
+          discount: discount
+      };
+      
+      fetch("/billing/save-bill", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(billData)
+      })
+      .then(response => response.blob())
+    .then(blob => {
+        // Open PDF in new tab
+          console.log('Blob size:', blob.size); // Log the blob size
+		    console.log('Blob type:', blob.type); 
+		    if (blob.size === 0) {
+		        console.error("Received empty PDF!");
+		    } else {
+		        const url = URL.createObjectURL(blob);
+		        window.open(url); // Open in new tab
+		    }
+    }).then(alert("Bill Saved Succesfully"))
+      .catch(error => alert("Error saving bill"));
+  });
+
+ 
+
+  		
+  </script>
+</body>
+</html>

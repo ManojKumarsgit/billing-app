@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+     <link rel="stylesheet" th:href="@{/css/nav-color.css}">
+</head>
+<body>
+ <nav class="navbar navbar-expand-lg  p-3">
+        <div class="container-fluid">
+
+            <a class="navbar-brand" href="/dashboard">Billing Software</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <!-- Navbar Links -->
+            <div class="collapse navbar-collapse" id="navbarNav">
+              
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                     <li class="nav-item">
+                        <a class="nav-link" aria-current="page" href="/billing">Create Bill</a>
+                    </li> 
+	                <li class="nav-item">
+	                     <a class="nav-link" href="/products/return-products">Product Return</a>
+	                </li> 
+	                <li class="nav-item">
+	                    <a class="nav-link" href="/reports">View Reports</a>
+	                </li>
+                </ul>
+
+                <!-- Logout Button -->
+                <div class="d-flex">
+                <a href="/auth/logout">
+                    <button class="btn btn-danger" >
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+    
+    <div class="container mt-4">
+    
+       <h2 class="mb-4">Product Return</h2>
+
+    <!-- ✅ Success / Error Messages -->
+    <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+    <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+
+    <!-- ✅ Search Form -->
+    <form th:action="@{/products/returns-search}" method="post" class="mb-4">
+        <div class="row">
+            <div class="col-md-4">
+                <label class="form-label">Date:</label>
+                <input type="date" name="date" class="form-control" required>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Phone Number:</label>
+                <input type="text" name="phone" class="form-control" required>
+            </div>
+            <div class="col-md-4 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary w-100">Search</button>
+            </div>
+        </div>
+    </form>
+
+    <!-- ✅ Display Bill Details if Found -->
+    <table class="table table-bordered text-center" >
+        <thead class="table-dark">
+            <tr>
+                <th>S.No</th>
+                <th>Date</th>
+                <th>Bill No</th>
+                <th>Phone</th>
+                <th>Item</th>
+                <th>MRP</th>
+                <th>Quantity</th>
+                <th>Total</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:if="${not #lists.isEmpty(billList)}" th:each="bill, iterStat : ${billList}">
+                <td th:text="${iterStat.count}"></td>
+                <td th:text="${bill.date}"></td>
+                <td th:text="${bill.billno}"></td>
+                <td th:text="${bill.phone}"></td>
+                <td th:text="${bill.item}"></td>
+                <td th:text="${bill.mrp}"></td>
+                <td th:text="${bill.quantity}"></td>
+                <td th:text="${bill.total}"></td>
+                <td>
+                    <form th:action="@{/products/return/{id}(id=${bill.id})}" method="post">
+                        <button type="submit" class="btn btn-danger btn-sm">Return</button>
+                    </form>
+                </td>
+            </tr>
+            <tr th:if="${billList == null or billList.isEmpty()}">
+            	<td colspan="9" class="text-center">No Bills found in between this Date</td>
+            </tr>
+        </tbody>
+    </table>
+    </div>
+    
+    <script type="text/javascript">
+    	setTimeout(()=>{
+    		let alert = document.querySelector('.alert');
+    		alert.style= 'display:none';
+    	},3000);
+    </script>
+
+</body>
+</html>
